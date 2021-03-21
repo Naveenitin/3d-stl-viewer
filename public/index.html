@@ -1,1 +1,93 @@
-Hello
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STL viewer</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="./js/three.min.js"></script>
+    <script src="./js/STLLoader.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+  </head>
+  <body>
+    <div class="name">Naveen Gaur</div>
+  </body>
+  <script>
+    function init() {
+      var camera = new THREE.PerspectiveCamera(
+        70,
+        window.innerWidth / window.innerHeight,
+        1,
+        1000
+      );
+
+      var renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.querySelector("body").appendChild(renderer.domElement);
+
+      window.addEventListener(
+        "resize",
+        function () {
+          renderer.setSize(window.innerWidth, window.clientHeight);
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+        },
+        false
+      );
+
+      var scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xffffff, 1.0));
+
+      const light = new THREE.AmbientLight(0x404040);
+      scene.add(light);
+
+      new THREE.STLLoader().load("Shoulder_Bone.stl", function (geometry) {
+        var material = new THREE.MeshPhongMaterial({
+          color: 0xdddddd,
+          specular: 100,
+          shininess: 100,
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        var middle = new THREE.Vector3();
+        geometry.computeBoundingBox();
+        geometry.boundingBox.getCenter(middle);
+        mesh.geometry.applyMatrix4(
+          new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z)
+        );
+
+        var d = Math.max(
+          geometry.boundingBox.max.x,
+          geometry.boundingBox.max.y,
+          geometry.boundingBox.max.z
+        );
+        camera.position.z = 2.5 * d;
+
+        var controls = new THREE.OrbitControls(mesh, renderer.domElement);
+        controls.enableDamping = true;
+        controls.rotateSpeed = 2.5;
+        controls.dampingFactor = 0.5;
+        controls.enableZoom = true;
+        controls.minDistance = 0.5;
+        controls.maxDistance = 1000;
+
+        const axesHelper = new THREE.AxesHelper(5);
+        scene.add(axesHelper);
+
+        var animate = function () {
+          requestAnimationFrame(animate);
+          controls.update();
+          renderer.render(scene, camera);
+        };
+
+        animate();
+      });
+    }
+    init();
+  </script>
+</html>

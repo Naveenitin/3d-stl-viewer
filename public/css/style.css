@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: black;
+}
+.name {
+    color: white;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
